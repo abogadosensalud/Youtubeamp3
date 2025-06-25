@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargador de YouTube Seguro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .url-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .format-btn {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .format-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .format-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .format-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .format-btn {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Descargador Seguro</h1>
+        <p class="subtitle">Descarga videos y música de YouTube sin virus ni malware</p>
+        
+        <div class="input-group">
+            <input type="text" class="url-input" id="urlInput" placeholder="Pega aquí la URL de YouTube..." />
+        </div>
+
+        <div class="format-selector">
+            <button class="format-btn active" data-format="mp3">🎵 MP3 (Audio)</button>
+            <button class="format-btn" data-format="mp4">🎬 MP4 (Video)</button>
+        </div>
+
+        <button class="download-btn" id="downloadBtn">
+            Descargar Contenido
+        </button>
+
+        <div class="status" id="statusDiv"></div>
+
+        <div class="info-box">
+            <h3>✅ Características de Seguridad:</h3>
+            <ul>
+                <li>• Sin anuncios maliciosos</li>
+                <li>• Sin descargas adicionales no deseadas</li>
+                <li>• Procesamiento en servidor seguro</li>
+                <li>• Sin instalación de software</li>
+                <li>• Completamente gratuito</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://tu-app.railway.app'; // Cambia esto por tu URL de Railway
+        
+        let selectedFormat = 'mp3';
+
+        // Manejo de selección de formato
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFormat = btn.dataset.format;
+            });
+        });
+
+        // Función para mostrar estado
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusDiv');
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'loading') {
+                statusDiv.innerHTML = `<div class="loading-spinner"></div>${message}`;
+            } else {
+                statusDiv.innerHTML = message;
+            }
+        }
+
+        // Función para validar URL de YouTube
+        function isValidYouTubeUrl(url) {
+            const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+            return regex.test(url);
+        }
+
+        // Función principal de descarga
+        async function downloadContent() {
+            const url = document.getElementById('urlInput').value.trim();
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            if (!url) {
+                showStatus('Por favor, ingresa una URL de YouTube', 'error');
+                return;
+            }
+
+            if (!isValidYouTubeUrl(url)) {
+                showStatus('Por favor, ingresa una URL válida de YouTube', 'error');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            showStatus('Procesando tu solicitud...', 'loading');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        format: selectedFormat
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus('¡Descarga iniciada! El archivo se descargará automáticamente.', 'success');
+                    
+                    // Crear enlace de descarga
+                    const link = document.createElement('a');
+                    link.href = data.downloadUrl;
+                    link.download = data.filename;
+                    link.click();
+                } else {
+                    showStatus(data.error || 'Error al procesar la descarga', 'error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Error de conexión. Por favor, intenta nuevamente.', 'error');
+            } finally {
+                downloadBtn.disabled = false;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('downloadBtn').addEventListener('click', downloadContent);
+
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                downloadContent();
+            }
+        });
+
+        // Limpiar estado cuando se cambia la URL
+        document.getElementById('urlInput').addEventListener('input', () => {
+            document.getElementById('statusDiv').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
