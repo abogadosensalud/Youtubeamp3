@@ -1,22 +1,21 @@
-# Usar imagen oficial de Node.js
-FROM node:18-slim
+# Usar imagen de Python que incluye Node.js
+FROM python:3.11-slim
 
-# Instalar dependencias del sistema
+# Instalar Node.js y npm
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    ffmpeg \
-    wget \
     curl \
+    ffmpeg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar yt-dlp
-RUN pip3 install yt-dlp
+RUN pip install --upgrade pip && pip install yt-dlp
 
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de dependencias
+# Copiar archivos de dependencias de Node.js
 COPY package*.json ./
 
 # Instalar dependencias de Node.js
