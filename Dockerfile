@@ -1,21 +1,28 @@
-# Usar imagen de Python que incluye Node.js
-FROM python:3.11-slim
+# Usar imagen oficial de Node.js
+FROM node:18-slim
 
-# Instalar Node.js y npm
+# Instalar dependencias del sistema y yt-dlp
 RUN apt-get update && apt-get install -y \
-    curl \
+    python3 \
+    python3-pip \
+    python3-venv \
     ffmpeg \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
+    wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar yt-dlp
-RUN pip install --upgrade pip && pip install yt-dlp
+# Crear un entorno virtual de Python y instalar yt-dlp
+RUN python3 -m venv /opt/venv
+RUN /opt/venv/bin/pip install --upgrade pip
+RUN /opt/venv/bin/pip install yt-dlp
+
+# Agregar el entorno virtual al PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de dependencias de Node.js
+# Copiar archivos de dependencias
 COPY package*.json ./
 
 # Instalar dependencias de Node.js
